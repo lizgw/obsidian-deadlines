@@ -2,10 +2,12 @@ import { App, Modal, Plugin, PluginSettingTab, Setting, TFile, TFolder } from 'o
 
 interface DeadlinePluginSettings {
 	deadlineFolder: string;
+	groupList: string;
 }
 
 const DEFAULT_SETTINGS: DeadlinePluginSettings = {
-	deadlineFolder: ""
+	deadlineFolder: "",
+	groupList: ""
 }
 
 export default class DeadlinePlugin extends Plugin {
@@ -18,7 +20,7 @@ export default class DeadlinePlugin extends Plugin {
 			id: "create-deadline",
 			name: "Create New Deadline",
 			callback: () => {
-				const modal = new DeadlineCreationModal(this.app);
+				const modal = new DeadlineCreationModal(this.app, this.settings);
 				modal.open();
 				const createBtn = document.getElementById("btn-create-deadline");
 				const cancelBtn = document.getElementById("btn-cancel-new-deadline");
@@ -86,8 +88,12 @@ export default class DeadlinePlugin extends Plugin {
 }
 
 class DeadlineCreationModal extends Modal {
-	constructor(app: App) {
+	settings: DeadlinePluginSettings;
+
+	constructor(app: App, settings: DeadlinePluginSettings) {
 		super(app);
+
+		this.settings = settings;
 	}
 
 	onOpen() {
@@ -129,8 +135,8 @@ class DeadlineCreationModal extends Modal {
 		const groupField = rightDiv.appendChild(document.createElement("select"));
 		groupField.setAttribute("id", "deadline-group");
 		groupField.setAttribute("class", "dropdown");
-		// TODO: load groups from settings
-		const groups = ["", "CS 4349", "CS 3354", "PSY 2301"];
+		// load groups from settings
+		const groups = [""].concat(this.settings.groupList.split("\n"));
 		groups.forEach(groupName => {
 			let opt = groupField.appendChild(document.createElement("option"));
 			opt.setAttribute("value", groupName);
@@ -177,11 +183,20 @@ class DeadlinePluginSettingTab extends PluginSettingTab {
 			.setDesc("The default folder for new deadlines. Leave blank to use the Obsidian default.")
 			.addText(text => text
 				.setPlaceholder("")
-				.setValue("")
+				.setValue(this.plugin.settings.deadlineFolder)
 				.onChange(async (value) => {
-					console.log("folder = " + value);
 					this.plugin.settings.deadlineFolder = value;
 					await this.plugin.saveSettings();
 				}));
+
+		new Setting(containerEl)
+			.setName("Groups")
+			.setDesc("Newline-separated list of groups to use")
+			.addTextArea(text => text
+				.setValue(this.plugin.settings.groupList)
+				.onChange(async (value) => {
+					this.plugin.settings.groupList = value;
+					await this.plugin.saveSettings();
+				}))
 	}
 }
