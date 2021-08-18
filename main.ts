@@ -1,4 +1,5 @@
 import { App, Modal, Plugin, PluginSettingTab, Setting, TFile, TFolder } from 'obsidian';
+import DeadlineView from "DeadlineView";
 
 interface DeadlinePluginSettings {
 	deadlineFolder: string;
@@ -15,6 +16,14 @@ export default class DeadlinePlugin extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
+
+		this.addSettingTab(new DeadlinePluginSettingTab(this.app, this));
+
+		this.registerView("deadline", (leaf) => new DeadlineView(leaf, this));
+
+		this.addRibbonIcon("calendar-with-checkmark", "Deadline View", () => {
+			this.openDeadlineView();
+		});
 
 		this.addCommand({
 			id: "create-deadline",
@@ -33,7 +42,17 @@ export default class DeadlinePlugin extends Plugin {
 			}
 		});
 
-		this.addSettingTab(new DeadlinePluginSettingTab(this.app, this));
+		this.addCommand({
+			id: "show-deadlines",
+			name: "Show Deadline View",
+			callback: this.openDeadlineView
+		});		
+	}
+
+	async openDeadlineView() {
+		const leaf = this.app.workspace.getLeaf(false);
+		const deadlineView = new DeadlineView(leaf, this);
+		await this.app.workspace.activeLeaf.open(deadlineView);
 	}
 
 	onunload() {
@@ -63,7 +82,7 @@ export default class DeadlinePlugin extends Plugin {
 		let folder = this.app.fileManager.getNewFileParent(this.settings.deadlineFolder);
 		if (this.settings.deadlineFolder != "") {
 			// use the path in Deadlines settings
-			// this code is probably bad but it at least kind of works
+			// TODO: this code is causes weird behavior with subfolders
 			folder.path = this.settings.deadlineFolder;
 			folder.name = this.settings.deadlineFolder;
 		}
@@ -159,7 +178,6 @@ class DeadlineCreationModal extends Modal {
 		// let {contentEl} = this;
 	}
 }
-
 
 class DeadlinePluginSettingTab extends PluginSettingTab {
 	plugin: DeadlinePlugin;
