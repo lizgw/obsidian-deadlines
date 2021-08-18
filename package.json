@@ -1,7 +1,7 @@
 {
-  "name": "obsidian-deadline-view",
+  "name": "obsidian-deadlines",
   "version": "0.1.0",
-  "description": "An Obsidian plugin that displays notes in a calendar view.",
+  "description": "An Obsidian plugin that displays notes with deadlines in a calendar view.",
   "main": "main.js",
   "scripts": {
     "dev": "rollup --config rollup.config.js -w",
