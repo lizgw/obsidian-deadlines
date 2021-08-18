@@ -1,15 +1,15 @@
-import { App, Modal, Plugin, PluginSettingTab, Setting, TFile } from 'obsidian';
+import { App, Modal, Plugin, PluginSettingTab, Setting, TFile, TFolder } from 'obsidian';
 
-interface MyPluginSettings {
-	mySetting: string;
+interface DeadlinePluginSettings {
+	deadlineFolder: string;
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
+const DEFAULT_SETTINGS: DeadlinePluginSettings = {
+	deadlineFolder: ""
 }
 
-export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+export default class DeadlinePlugin extends Plugin {
+	settings: DeadlinePluginSettings;
 
 	async onload() {
 		await this.loadSettings();
@@ -22,14 +22,16 @@ export default class MyPlugin extends Plugin {
 				modal.open();
 				const createBtn = document.getElementById("btn-create-deadline");
 				const cancelBtn = document.getElementById("btn-cancel-new-deadline");
-				createBtn.addEventListener("click", () => {
+				this.registerDomEvent(createBtn, "click", () => {
 					this.createNewDeadline(modal);
 				});
-				cancelBtn.addEventListener("click", () => {
+				this.registerDomEvent(cancelBtn, "click", () => {
 					modal.close();
 				});
 			}
 		});
+
+		this.addSettingTab(new DeadlinePluginSettingTab(this.app, this));
 	}
 
 	onunload() {
@@ -54,8 +56,15 @@ export default class MyPlugin extends Plugin {
 			"\ngroup: " + deadlineGroup + 
 			"\nstatus: todo\n---";
 
-		// TODO: get folder from settings
-		let folder = this.app.fileManager.getNewFileParent("");
+		// get default new note folder from settings
+		// use the Obsidian default
+		let folder = this.app.fileManager.getNewFileParent(this.settings.deadlineFolder);
+		if (this.settings.deadlineFolder != "") {
+			// use the path in Deadlines settings
+			// this code is probably bad but it at least kind of works
+			folder.path = this.settings.deadlineFolder;
+			folder.name = this.settings.deadlineFolder;
+		}
 
 		try {
 			// the createNewMarkdownFile function exists(, even if it's not in the ts files
@@ -65,13 +74,11 @@ export default class MyPlugin extends Plugin {
         folder,
         deadlineTitle
       );
-
+			// write the frontmatter to the file
 			await this.app.vault.modify(deadlineFile, frontMatter);
 		} catch (err) {
 			console.error("error creating file");
 		}
-
-		// TODO: write metadata to the file
 		
 		// now close
 		modal.close();
@@ -148,10 +155,10 @@ class DeadlineCreationModal extends Modal {
 }
 
 
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
+class DeadlinePluginSettingTab extends PluginSettingTab {
+	plugin: DeadlinePlugin;
 
-	constructor(app: App, plugin: MyPlugin) {
+	constructor(app: App, plugin: DeadlinePlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
@@ -161,17 +168,19 @@ class SampleSettingTab extends PluginSettingTab {
 
 		containerEl.empty();
 
-		containerEl.createEl('h2', {text: 'Settings for my awesome plugin.'});
+		containerEl.createEl("h2", {
+			text: "Deadlines"
+		});
 
 		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
+			.setName("Deadline Note Folder")
+			.setDesc("The default folder for new deadlines. Leave blank to use the Obsidian default.")
 			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue('')
+				.setPlaceholder("")
+				.setValue("")
 				.onChange(async (value) => {
-					console.log('Secret: ' + value);
-					this.plugin.settings.mySetting = value;
+					console.log("folder = " + value);
+					this.plugin.settings.deadlineFolder = value;
 					await this.plugin.saveSettings();
 				}));
 	}
