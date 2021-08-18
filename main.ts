@@ -1,5 +1,4 @@
-import { group } from 'console';
-import { App, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Modal, Plugin, PluginSettingTab, Setting, TFile } from 'obsidian';
 
 interface MyPluginSettings {
 	mySetting: string;
@@ -17,13 +16,20 @@ export default class MyPlugin extends Plugin {
 
 		this.addCommand({
 			id: "create-deadline",
-			name: "Create Deadline",
+			name: "Create New Deadline",
 			callback: () => {
-				console.log("yeet");
-				new DeadlineCreationModel(this.app).open();
+				const modal = new DeadlineCreationModal(this.app);
+				modal.open();
+				const createBtn = document.getElementById("btn-create-deadline");
+				const cancelBtn = document.getElementById("btn-cancel-new-deadline");
+				createBtn.addEventListener("click", () => {
+					this.createNewDeadline(modal);
+				});
+				cancelBtn.addEventListener("click", () => {
+					modal.close();
+				});
 			}
 		});
-
 	}
 
 	onunload() {
@@ -37,9 +43,42 @@ export default class MyPlugin extends Plugin {
 	async saveSettings() {
 		await this.saveData(this.settings);
 	}
+
+	async createNewDeadline(modal: Modal) {
+		let deadlineTitle = (<HTMLInputElement> document.getElementById("deadline-title")).value;
+		let deadlineDate = (<HTMLInputElement> document.getElementById("deadline-date")).value;
+		let deadlineGroup = (<HTMLSelectElement> document.getElementById("deadline-group")).value;
+
+		let frontMatter = "---\n" + 
+			"deadline: " + deadlineDate +
+			"\ngroup: " + deadlineGroup + 
+			"\nstatus: todo\n---";
+
+		// TODO: get folder from settings
+		let folder = this.app.fileManager.getNewFileParent("");
+
+		try {
+			// the createNewMarkdownFile function exists(, even if it's not in the ts files
+			// (got this from the code for obsidian-kanban)
+			// @ts-ignore
+			const deadlineFile = await this.app.fileManager.createNewMarkdownFile(
+        folder,
+        deadlineTitle
+      );
+
+			await this.app.vault.modify(deadlineFile, frontMatter);
+		} catch (err) {
+			console.error("error creating file");
+		}
+
+		// TODO: write metadata to the file
+		
+		// now close
+		modal.close();
+	}
 }
 
-class DeadlineCreationModel extends Modal {
+class DeadlineCreationModal extends Modal {
 	constructor(app: App) {
 		super(app);
 	}
@@ -75,7 +114,6 @@ class DeadlineCreationModel extends Modal {
 		// set default value to today
 		const today = new Date();
 		const todayString = today.toISOString().substring(0, 10);
-		console.log("today is " + todayString);
 		dateField.setAttribute("value", todayString);
 
 		const groupLabel = leftDiv.appendChild(document.createElement("label"));
@@ -105,18 +143,10 @@ class DeadlineCreationModel extends Modal {
 	}
 
 	onClose() {
-		let {contentEl} = this;
-
-		let titleField = <HTMLInputElement> document.getElementById("deadline-title");
-		let dateField = <HTMLInputElement> document.getElementById("deadline-date");
-		let groupField = <HTMLSelectElement> document.getElementById("deadline-group");
-		
-		console.log(titleField.value, dateField.value, groupField.value);
-
-		contentEl.empty();
-		// TODO: get rid of event listeners
+		// let {contentEl} = this;
 	}
 }
+
 
 class SampleSettingTab extends PluginSettingTab {
 	plugin: MyPlugin;
