@@ -1,4 +1,45 @@
-/* Sets all the text color to red! */
-body {
-    color: red;
+.wrapper {
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.wrapper-left {
+  margin-right: 1rem;
+}
+
+.wrapper-right{
+  flex-grow: 1;
+}
+
+.wrapper div {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+h1 {
+  font-size: 1.5rem;
+  margin-top: 0;
+}
+
+label {
+  display: block;
+  margin: 0.5rem;
+}
+
+#deadline-date {
+  font-size: 1rem;
+  font-family: sans-serif;
+  box-sizing: border-box;
+  color: var(--text-normal);
+  line-height: 1.3;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 0.5rem;
+  background-color: var(--background-modifier-form-field);
+  padding: 0.4em;
+}
+
+#btn-create-deadline {
+  float: right;
+  margin-right: 0;
 }

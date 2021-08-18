@@ -1,3 +1,4 @@
+import { group } from 'console';
 import { App, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 
 interface MyPluginSettings {
@@ -12,49 +13,21 @@ export default class MyPlugin extends Plugin {
 	settings: MyPluginSettings;
 
 	async onload() {
-		console.log('loading plugin');
-
 		await this.loadSettings();
 
-		this.addRibbonIcon('dice', 'Sample Plugin', () => {
-			new Notice('This is a notice!');
-		});
-
-		this.addStatusBarItem().setText('Status Bar Text');
-
 		this.addCommand({
-			id: 'open-sample-modal',
-			name: 'Open Sample Modal',
-			// callback: () => {
-			// 	console.log('Simple Callback');
-			// },
-			checkCallback: (checking: boolean) => {
-				let leaf = this.app.workspace.activeLeaf;
-				if (leaf) {
-					if (!checking) {
-						new SampleModal(this.app).open();
-					}
-					return true;
-				}
-				return false;
+			id: "create-deadline",
+			name: "Create Deadline",
+			callback: () => {
+				console.log("yeet");
+				new DeadlineCreationModel(this.app).open();
 			}
 		});
 
-		this.addSettingTab(new SampleSettingTab(this.app, this));
-
-		this.registerCodeMirror((cm: CodeMirror.Editor) => {
-			console.log('codemirror', cm);
-		});
-
-		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			console.log('click', evt);
-		});
-
-		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
 	}
 
 	onunload() {
-		console.log('unloading plugin');
+		// console.log('unloading plugin');
 	}
 
 	async loadSettings() {
@@ -66,19 +39,82 @@ export default class MyPlugin extends Plugin {
 	}
 }
 
-class SampleModal extends Modal {
+class DeadlineCreationModel extends Modal {
 	constructor(app: App) {
 		super(app);
 	}
 
 	onOpen() {
 		let {contentEl} = this;
-		contentEl.setText('Woah!');
+		
+		const wrapper = document.createElement("div");
+    wrapper.setAttribute("class", "wrapper");
+
+    const title = contentEl.appendChild(document.createElement("h1"));
+    title.innerText = "Create New Deadline";
+
+		const leftDiv = wrapper.appendChild(document.createElement("div"));
+		leftDiv.setAttribute("class", "wrapper-left");
+
+		const rightDiv = wrapper.appendChild(document.createElement("div"));
+		rightDiv.setAttribute("class", "wrapper-right");
+
+		const titleLabel = leftDiv.appendChild(document.createElement("label"));
+		titleLabel.setAttribute("for", "deadline-title");
+		titleLabel.innerText = "Title: ";
+		const titleField = rightDiv.appendChild(document.createElement("input"));
+		titleField.setAttribute("id", "deadline-title");
+		titleField.setAttribute("type", "text");
+
+		const dateLabel = leftDiv.appendChild(document.createElement("label"));
+		dateLabel.setAttribute("for", "deadline-date");
+		dateLabel.innerText = "Deadline: ";
+		const dateField = rightDiv.appendChild(document.createElement("input"));
+		dateField.setAttribute("type", "date");
+		dateField.setAttribute("id", "deadline-date");
+		// set default value to today
+		const today = new Date();
+		const todayString = today.toISOString().substring(0, 10);
+		console.log("today is " + todayString);
+		dateField.setAttribute("value", todayString);
+
+		const groupLabel = leftDiv.appendChild(document.createElement("label"));
+		groupLabel.setAttribute("for", "deadline-group");
+		groupLabel.innerText = "Group: ";
+		const groupField = rightDiv.appendChild(document.createElement("select"));
+		groupField.setAttribute("id", "deadline-group");
+		groupField.setAttribute("class", "dropdown");
+		// TODO: load groups from settings
+		const groups = ["", "CS 4349", "CS 3354", "PSY 2301"];
+		groups.forEach(groupName => {
+			let opt = groupField.appendChild(document.createElement("option"));
+			opt.setAttribute("value", groupName);
+			opt.innerText = groupName;
+		});
+
+		contentEl.appendChild(wrapper);
+
+		const cancelBtn = contentEl.appendChild(document.createElement("button"));
+		cancelBtn.innerText = "Cancel";
+		cancelBtn.setAttribute("id", "btn-cancel-new-deadline");
+
+		const createBtn = contentEl.appendChild(document.createElement("button"));
+		createBtn.innerText = "Create";
+		createBtn.setAttribute("id", "btn-create-deadline");
+		createBtn.setAttribute("class", "mod-cta");
 	}
 
 	onClose() {
 		let {contentEl} = this;
+
+		let titleField = <HTMLInputElement> document.getElementById("deadline-title");
+		let dateField = <HTMLInputElement> document.getElementById("deadline-date");
+		let groupField = <HTMLSelectElement> document.getElementById("deadline-group");
+		
+		console.log(titleField.value, dateField.value, groupField.value);
+
 		contentEl.empty();
+		// TODO: get rid of event listeners
 	}
 }
 
