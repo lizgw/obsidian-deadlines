@@ -28,7 +28,9 @@ export default class DeadlinePlugin extends Plugin {
 		this.addCommand({
 			id: "show-deadlines",
 			name: "Show Deadline View",
-			callback: this.openDeadlineView
+			callback: () => {
+				this.openDeadlineView();
+			}
 		});		
 	}
 

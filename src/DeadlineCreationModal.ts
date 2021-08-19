@@ -43,11 +43,9 @@ export default class DeadlineCreationModal extends Modal {
 		// set default value to today or whatever was passed in
 		let today = this.defaultDate;
 		if (today == undefined) {
-			console.log(this.defaultDate + " is undefined");
 			today = new Date();
 		}
 		const todayString = today.toISOString().substring(0, 10);
-		console.log(this.defaultDate);
 		dateField.setAttribute("value", todayString);
 
 		const groupLabel = leftDiv.appendChild(document.createElement("label"));
