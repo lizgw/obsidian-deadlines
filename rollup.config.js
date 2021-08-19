@@ -14,7 +14,7 @@ if you want to view the source visit the plugins github repository
 export default {
   input: 'src/main.ts',
   output: {
-    dir: 'dist',
+    dir: '.',
     sourcemap: 'inline',
     sourcemapExcludeSources: isProd,
     format: 'cjs',

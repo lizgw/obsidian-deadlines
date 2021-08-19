@@ -6,10 +6,20 @@ export default class DeadlineView extends ItemView {
 
   constructor(leaf: WorkspaceLeaf, plugin: DeadlinePlugin) {
     super(leaf);
-    this.plugin = plugin;
+    this.plugin = plugin;  
+  }
+
+  onload() {
+    super.onload();
+
+    console.log("LOAD!!!");
 
     this.contentEl.createEl("h1", {
       text: "Deadlines"
+    });
+
+    let calContainer = this.contentEl.createDiv({
+      cls: "calendar-container"
     });
   }
 

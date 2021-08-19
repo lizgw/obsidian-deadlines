@@ -43,3 +43,7 @@ label {
   float: right;
   margin-right: 0;
 }
+
+.calendar-container {
+  display: flex;
+}
