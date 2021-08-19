@@ -115,16 +115,27 @@ export default class DeadlineView extends ItemView {
     });
 
     // add a class to the weekends
+    // TODO: make a toggle setting for this
     if (date.getDay() == 0 || date.getDay() == 6) {
       block.addClass("calendar-day-block-weekend");
     }
 
     // add a class to today
+    // TODO: make a toggle setting for this
     let today = new Date();
     // let today = new Date(2021, 7, 8);
     if (date.toDateString() == today.toDateString()) {
       block.addClass("calendar-day-block-today");
     }
+
+    // add a hover button that lets you create a deadline for that date
+    let addBtn = block.createEl("button", {
+      text: "+",
+      cls: "calendar-add-btn"
+    });
+    addBtn.addEventListener("click", () => {
+      this.plugin.createDeadlineModal(date);
+    })
 
     return block;
   }

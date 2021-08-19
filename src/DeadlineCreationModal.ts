@@ -3,11 +3,13 @@ import { DeadlinePluginSettings } from "settings";
 
 export default class DeadlineCreationModal extends Modal {
 	settings: DeadlinePluginSettings;
+	defaultDate: Date;
 
-	constructor(app: App, settings: DeadlinePluginSettings) {
+	constructor(app: App, settings: DeadlinePluginSettings, defaultDate?: Date) {
 		super(app);
 
 		this.settings = settings;
+		this.defaultDate = defaultDate;
 	}
 
 	onOpen() {
@@ -38,9 +40,14 @@ export default class DeadlineCreationModal extends Modal {
 		const dateField = rightDiv.appendChild(document.createElement("input"));
 		dateField.setAttribute("type", "date");
 		dateField.setAttribute("id", "deadline-date");
-		// set default value to today
-		const today = new Date();
+		// set default value to today or whatever was passed in
+		let today = this.defaultDate;
+		if (today == undefined) {
+			console.log(this.defaultDate + " is undefined");
+			today = new Date();
+		}
 		const todayString = today.toISOString().substring(0, 10);
+		console.log(this.defaultDate);
 		dateField.setAttribute("value", todayString);
 
 		const groupLabel = leftDiv.appendChild(document.createElement("label"));

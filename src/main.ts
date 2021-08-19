@@ -21,16 +21,7 @@ export default class DeadlinePlugin extends Plugin {
 			id: "create-deadline",
 			name: "Create New Deadline",
 			callback: () => {
-				const modal = new DeadlineCreationModal(this.app, this.settings);
-				modal.open();
-				const createBtn = document.getElementById("btn-create-deadline");
-				const cancelBtn = document.getElementById("btn-cancel-new-deadline");
-				this.registerDomEvent(createBtn, "click", () => {
-					this.createNewDeadline(modal);
-				});
-				this.registerDomEvent(cancelBtn, "click", () => {
-					modal.close();
-				});
+				this.createDeadlineModal();
 			}
 		});
 
@@ -39,6 +30,19 @@ export default class DeadlinePlugin extends Plugin {
 			name: "Show Deadline View",
 			callback: this.openDeadlineView
 		});		
+	}
+
+	createDeadlineModal(date?: Date) {
+		const modal = new DeadlineCreationModal(this.app, this.settings, date);
+		modal.open();
+		const createBtn = document.getElementById("btn-create-deadline");
+		const cancelBtn = document.getElementById("btn-cancel-new-deadline");
+		this.registerDomEvent(createBtn, "click", () => {
+			this.createNewDeadline(modal);
+		});
+		this.registerDomEvent(cancelBtn, "click", () => {
+			modal.close();
+		});
 	}
 
 	async openDeadlineView() {
