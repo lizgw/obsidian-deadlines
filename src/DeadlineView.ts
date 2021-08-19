@@ -1,6 +1,6 @@
-import { off } from "codemirror";
 import DeadlinePlugin from "main";
 import {ItemView, WorkspaceLeaf} from "obsidian";
+import Deadline from "Deadline";
 
 // TODO: i8n?
 const WEEKDAYS = [
@@ -16,20 +16,22 @@ const WEEKDAYS = [
 export default class DeadlineView extends ItemView {
   plugin: DeadlinePlugin;
   numWeeks: Number;
+  deadlineData: Deadline[];
+  containerElem: HTMLDivElement;
 
   constructor(leaf: WorkspaceLeaf, plugin: DeadlinePlugin) {
     super(leaf);
     this.plugin = plugin;
     this.numWeeks = 8;
+    this.deadlineData = this.getDeadlineData()
+      .sort((a, b) => { return a.compare(b); });
+
+    this.containerElem = this.contentEl.createDiv();
+    this.containerElem.setAttribute("id", "calendar-container");
   }
 
   onload() {
     super.onload();
-
-    let calContainer = this.contentEl.createDiv({
-      cls: "calendar-container"
-    });
-
     // let today = new Date(2021, 7, 8);
     let today = new Date();
     let todayMonthStr = today.toLocaleString("default", { month: "long" });
@@ -45,9 +47,9 @@ export default class DeadlineView extends ItemView {
     // subtract some days depending on where this date is on the calendar
     let startDate = this.addDays(today, (pos * -1));
 
-    calContainer.append(this.createMonthBar(todayMonthStr, today.getFullYear()));
+    this.containerElem.append(this.createMonthBar(todayMonthStr, today.getFullYear()));
 
-    calContainer.append(this.createWeekBar());
+    this.containerElem.append(this.createWeekBar());
 
     // create a row of dates
     let offset = 0;
@@ -57,19 +59,25 @@ export default class DeadlineView extends ItemView {
       let weekLater = this.addDays(lastDate, 7);
       if (weekLater.getDate() < lastDate.getDate()) {
         let newMonthName = weekLater.toLocaleString("default", {month: "long"});
-        calContainer.append(this.createMonthBar(newMonthName, weekLater.getFullYear()));
+        this.containerElem.append(this.createMonthBar(newMonthName, weekLater.getFullYear()));
       }
 
       // create each day in the row
       for (let j = 0; j < 7; j++) {
         let newDate = this.addDays(startDate, offset);
-        calContainer.append(this.createDayBlock(newDate));
+        this.containerElem.append(this.createDayBlock(newDate));
         lastDate = newDate;
         offset++;
       }
     }
-  }
 
+    // render all the deadlines
+    this.createDeadlineBlock(this.deadlineData[0], this.getNthDayBlock(0));
+    this.createDeadlineBlock(this.deadlineData[1], this.getNthDayBlock(1));
+    this.createDeadlineBlock(this.deadlineData[2], this.getNthDayBlock(1));
+    this.createDeadlineBlock(this.deadlineData[3], this.getNthDayBlock(2));
+    
+  }
   getDisplayText() {
     return "Deadlines";
   }
@@ -140,16 +148,46 @@ export default class DeadlineView extends ItemView {
     return block;
   }
 
+  createDeadlineBlock(deadline: Deadline, calBlock: Element) {
+    let deadlineElem = deadline.createElement();
+    deadlineElem.addEventListener("click", async () => {
+      let newLeaf = this.app.workspace.splitActiveLeaf("horizontal");
+      await newLeaf.openFile(deadline.note);
+    });
+    calBlock.append(deadlineElem);
+  }
+
   getNthDayBlock(n: number) {
-    let container = document.getElementById("calendar-container");
     // skip month bar and week bar
-    return container.children.item(2 + n);
+    return this.containerElem.children.item(2 + n);
   }
 
   addDays(date: Date, days: number) {
     var result = new Date(date);
     result.setDate(result.getDate() + days);
     return result;
+  }
+
+  getDeadlineData() {
+    let data = <Deadline[]> [];
+
+    let files = this.app.vault.getMarkdownFiles();
+
+    files.forEach(file => {
+      let cacheInfo = this.app.metadataCache.getFileCache(file);
+      // only process files with a deadline in the frontmatter
+      if (cacheInfo.frontmatter && cacheInfo.frontmatter.deadline != undefined) {
+        data.push(new Deadline(
+          file.basename,
+          new Date(cacheInfo.frontmatter.deadline),
+          cacheInfo.frontmatter.group,
+          cacheInfo.frontmatter.status,
+          file
+        ));
+      }
+    });
+
+    return data;
   }
   
 }

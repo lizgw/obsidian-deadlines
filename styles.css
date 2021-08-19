@@ -44,7 +44,7 @@ label {
   margin-right: 0;
 }
 
-.calendar-container {
+#calendar-container {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -92,6 +92,7 @@ label {
   border: 1px solid var(--background-modifier-border);
   min-height: 8rem;
   position: relative;
+  padding: 0.2rem;
 }
 
 .calendar-day-block-number {
@@ -136,4 +137,30 @@ label {
   animation-name: fade-in;
   animation-duration: 0.5s;
   animation-timing-function: ease;
+}
+
+.calendar-deadline {
+  font-size: 0.8rem;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 0.2rem;
+  padding: 0.3rem;
+  cursor: pointer;
+  margin-bottom: 0.2rem;
+}
+
+.calendar-deadline p {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.calendar-deadline-name {
+  margin-bottom: 0.1rem;
+  margin-top: 0;
+}
+
+.calendar-deadline-group {
+  font-size: 0.7rem;
+  line-height: 0.85rem;
+  margin: 0;
 }
