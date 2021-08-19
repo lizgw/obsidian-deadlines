@@ -50,7 +50,6 @@ label {
   flex-wrap: wrap;
   max-width: 100%;
   min-width: 500px;
-  height: 100%;
   padding: 0.5rem;
   justify-content: flex-start;
   align-items: flex-start;

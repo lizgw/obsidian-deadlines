@@ -20,7 +20,7 @@ export default class DeadlineView extends ItemView {
   constructor(leaf: WorkspaceLeaf, plugin: DeadlinePlugin) {
     super(leaf);
     this.plugin = plugin;
-    this.numWeeks = 10;
+    this.numWeeks = 5;
   }
 
   onload() {
