@@ -95,7 +95,8 @@ label {
 }
 
 .calendar-day-block-today {
-  background: var(--background-primary-alt);
+  color: var(--text-accent);
+  font-weight: bold;
 }
 
 .calendar-day-block-weekend {

@@ -20,7 +20,7 @@ export default class DeadlineView extends ItemView {
   constructor(leaf: WorkspaceLeaf, plugin: DeadlinePlugin) {
     super(leaf);
     this.plugin = plugin;
-    this.numWeeks = 5;
+    this.numWeeks = 10;
   }
 
   onload() {
@@ -117,6 +117,12 @@ export default class DeadlineView extends ItemView {
     // add a class to the weekends
     if (date.getDay() == 0 || date.getDay() == 6) {
       block.addClass("calendar-day-block-weekend");
+    }
+
+    // add a class to today
+    let today = new Date();
+    if (date.toDateString() == today.toDateString()) {
+      block.addClass("calendar-day-block-today");
     }
 
     return block;
