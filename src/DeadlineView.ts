@@ -20,7 +20,7 @@ export default class DeadlineView extends ItemView {
   constructor(leaf: WorkspaceLeaf, plugin: DeadlinePlugin) {
     super(leaf);
     this.plugin = plugin;
-    this.numWeeks = 10;
+    this.numWeeks = 8;
   }
 
   onload() {
@@ -45,7 +45,7 @@ export default class DeadlineView extends ItemView {
     // subtract some days depending on where this date is on the calendar
     let startDate = this.addDays(today, (pos * -1));
 
-    calContainer.append(this.createMonthBar(todayMonthStr));
+    calContainer.append(this.createMonthBar(todayMonthStr, today.getFullYear()));
 
     calContainer.append(this.createWeekBar());
 
@@ -57,7 +57,7 @@ export default class DeadlineView extends ItemView {
       let weekLater = this.addDays(lastDate, 7);
       if (weekLater.getDate() < lastDate.getDate()) {
         let newMonthName = weekLater.toLocaleString("default", {month: "long"});
-        calContainer.append(this.createMonthBar(newMonthName));
+        calContainer.append(this.createMonthBar(newMonthName, weekLater.getFullYear()));
       }
 
       // create each day in the row
@@ -83,11 +83,11 @@ export default class DeadlineView extends ItemView {
     return "calendar-with-checkmark";
   }
 
-  createMonthBar(month: string) {
+  createMonthBar(month: string, year: number) {
     const wrapper = document.createElement("div");
     wrapper.addClass("calendar-month-bar");
     wrapper.createEl("h2", {
-      text: month
+      text: month + " " + year
     });
 
     return wrapper;
@@ -121,6 +121,7 @@ export default class DeadlineView extends ItemView {
 
     // add a class to today
     let today = new Date();
+    // let today = new Date(2021, 7, 8);
     if (date.toDateString() == today.toDateString()) {
       block.addClass("calendar-day-block-today");
     }

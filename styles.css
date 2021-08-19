@@ -59,14 +59,18 @@ label {
 .calendar-month-bar {
   flex-basis: 100%;
   flex-grow: 1;
-  border: 1px solid var(--background-modifier-border);
+  /* border: 1px solid var(--background-modifier-border); */
 }
 
 .calendar-month-bar h2 {
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: normal;
-  margin: 0.2rem;
   padding: 0.2rem;
+  margin: 0;
+}
+
+.calendar-month-bar:first-of-type {
+  font-size: 1.2rem;
 }
 
 .calendar-week-bar {
@@ -86,7 +90,7 @@ label {
 .calendar-day-block {
   width: calc(100% / 7);
   border: 1px solid var(--background-modifier-border);
-  min-height: 6rem;
+  min-height: 8rem;
 }
 
 .calendar-day-block-number {
@@ -97,6 +101,7 @@ label {
 .calendar-day-block-today {
   color: var(--text-accent);
   font-weight: bold;
+  background: var(--background-primary-alt);
 }
 
 .calendar-day-block-weekend {
