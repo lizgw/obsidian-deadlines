@@ -20,7 +20,7 @@ export default class DeadlineView extends ItemView {
   constructor(leaf: WorkspaceLeaf, plugin: DeadlinePlugin) {
     super(leaf);
     this.plugin = plugin;
-    this.numWeeks = 5;
+    this.numWeeks = 10;
   }
 
   onload() {
@@ -51,11 +51,20 @@ export default class DeadlineView extends ItemView {
 
     // create a row of dates
     let offset = 0;
+    let lastDate = startDate;
     for (let i = 0; i < this.numWeeks; i++) {
+      // check if we need to add a new month bar
+      let weekLater = this.addDays(lastDate, 7);
+      if (weekLater.getDate() < lastDate.getDate()) {
+        let newMonthName = weekLater.toLocaleString("default", {month: "long"});
+        calContainer.append(this.createMonthBar(newMonthName));
+      }
+
       // create each day in the row
       for (let j = 0; j < 7; j++) {
         let newDate = this.addDays(startDate, offset);
-        calContainer.append(this.createDayBlock(newDate.getDate()));
+        calContainer.append(this.createDayBlock(newDate));
+        lastDate = newDate;
         offset++;
       }
     }
@@ -97,13 +106,19 @@ export default class DeadlineView extends ItemView {
     return wrapper;
   }
 
-  createDayBlock(num: number) {
+  createDayBlock(date: Date) {
     const block = document.createElement("div");
     block.addClass("calendar-day-block");
     block.createEl("span", {
-      text: "" + num,
+      text: "" + date.getDate(),
       cls: "calendar-day-block-number"
     });
+
+    // add a class to the weekends
+    if (date.getDay() == 0 || date.getDay() == 6) {
+      block.addClass("calendar-day-block-weekend");
+    }
+
     return block;
   }
 

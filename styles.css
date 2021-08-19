@@ -51,8 +51,7 @@ label {
   max-width: 100%;
   min-width: 500px;
   height: 100%;
-  margin: 1rem;
-  box-sizing: border-box;
+  padding: 0.5rem;
   justify-content: flex-start;
   align-items: flex-start;
   align-content: flex-start;
@@ -98,4 +97,8 @@ label {
 
 .calendar-day-block-today {
   background: var(--background-primary-alt);
+}
+
+.calendar-day-block-weekend {
+  background: var(--background-secondary);
 }
