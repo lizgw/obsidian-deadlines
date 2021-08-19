@@ -46,4 +46,52 @@ label {
 
 .calendar-container {
   display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  max-width: 100%;
+  min-width: 500px;
+  height: 100%;
+  margin: 1rem;
+  box-sizing: border-box;
+  justify-content: flex-start;
+  align-items: flex-start;
+  align-content: flex-start;
+}
+
+.calendar-month-bar {
+  flex-basis: 100%;
+  flex-grow: 1;
+  border: 1px solid var(--background-modifier-border);
+}
+
+.calendar-month-bar h2 {
+  font-size: 1.2rem;
+  font-weight: normal;
+  margin: 0.2rem;
+  padding: 0.2rem;
+}
+
+.calendar-week-bar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  flex-basis: 100%;
+}
+
+.calendar-week-bar span {
+  padding: 0.2rem;
+  flex-grow: 1;
+  border: 1px solid var(--background-modifier-border);
+  text-align: center;
+}
+
+.calendar-day-block {
+  width: calc(100% / 7);
+  border: 1px solid var(--background-modifier-border);
+  min-height: 6rem;
+}
+
+.calendar-day-block-number {
+  display: inline-block;
+  padding: 0.3rem;
 }
