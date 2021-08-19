@@ -80,7 +80,7 @@ label {
 
 .calendar-week-bar span {
   padding: 0.2rem;
-  flex-grow: 1;
+  width: calc(100% / 7);
   border: 1px solid var(--background-modifier-border);
   text-align: center;
 }
@@ -94,4 +94,8 @@ label {
 .calendar-day-block-number {
   display: inline-block;
   padding: 0.3rem;
+}
+
+.calendar-day-block-today {
+  background: var(--background-primary-alt);
 }
