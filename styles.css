@@ -100,7 +100,7 @@ label {
   padding: 0.3rem;
 }
 
-.calendar-day-block-today {
+.calendar-day-block-today .calendar-day-block-number {
   color: var(--text-accent);
   font-weight: bold;
   background: var(--background-primary-alt);
