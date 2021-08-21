@@ -170,3 +170,7 @@ label {
   line-height: 0.85rem;
   margin: 0;
 }
+
+.calendar-deadline-doing {
+  border-color: 1px solid var(--interactive-accent);
+}

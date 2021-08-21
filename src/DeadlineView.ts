@@ -203,10 +203,33 @@ export default class DeadlineView extends ItemView {
 
   createDeadlineBlock(deadline: Deadline, calBlock: Element) {
     let deadlineElem = deadline.createElement();
-    deadlineElem.addEventListener("click", async () => {
+    // click to open the file
+    this.registerDomEvent(deadlineElem, "click", async () => {
       let newLeaf = this.app.workspace.splitActiveLeaf("horizontal");
       await newLeaf.openFile(deadline.note);
     });
+    // right click to cycle through doing -> done
+    this.registerDomEvent(deadlineElem, "contextmenu", async () => {
+      let noteFile = deadline.note;
+      let noteContent = await this.app.vault.read(noteFile);
+      let noteLines = noteContent.split("\n");
+
+      // TODO: actually figure out which line contains the status property
+      let statusLine = 4;
+      let currentStatus = noteLines[statusLine].substring(8);
+
+      if (currentStatus == "todo") {
+        // change to doing
+        deadlineElem.addClass("calendar-deadline-doing");
+        noteLines.splice(statusLine, 1, "status: doing");
+      } else if (currentStatus == "doing") {
+        // instantly hide it from view
+        deadlineElem.style.display = "none";
+        noteLines.splice(statusLine, 1, "status: done");
+      }
+
+      this.app.vault.modify(noteFile, noteLines.join("\n"));
+    })
     if (calBlock == null) {
       console.error("null day block for " + deadline.date);
     } else {
