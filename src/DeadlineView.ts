@@ -15,9 +15,10 @@ const WEEKDAYS = [
 
 export default class DeadlineView extends ItemView {
   plugin: DeadlinePlugin;
-  numWeeks: Number;
+  numWeeks: number;
   deadlineData: Deadline[];
   containerElem: HTMLDivElement;
+  dayContainer: HTMLDivElement;
 
   constructor(leaf: WorkspaceLeaf, plugin: DeadlinePlugin) {
     super(leaf);
@@ -27,7 +28,7 @@ export default class DeadlineView extends ItemView {
       .sort((a, b) => { return a.compare(b); });
 
     this.containerElem = this.contentEl.createDiv();
-    this.containerElem.setAttribute("id", "calendar-container");
+    this.containerElem.setAttribute("id", "container");
   }
 
   onload() {
@@ -44,54 +45,69 @@ export default class DeadlineView extends ItemView {
     }
     // subtract some days depending on where this date is on the calendar
     let startDate = this.addDays(today, (pos * -1));
+    
+    this.dayContainer = this.containerElem.createDiv();
+    this.dayContainer.setAttribute("id", "calendar-container");
+    this.dayContainer.append(this.createMonthBar(todayMonthStr, today.getFullYear()));
+    this.dayContainer.append(this.createWeekBar());    
+    this.createDayRows(this.numWeeks, startDate);
+    this.renderDeadlines(startDate, this.addDays(startDate, (this.numWeeks * 7)));
 
-    this.containerElem.append(this.createMonthBar(todayMonthStr, today.getFullYear()));
+    let moreBtn = this.containerElem.createEl("button", {
+      text: "Show More",
+      cls: "btn-show-more"
+    });
+    this.registerDomEvent(moreBtn, "click", () => {
+      // get last day block
+      let lastDay = <HTMLDivElement> this.dayContainer.lastChild;
+      let lastDate = this.createDateFromText(lastDay.getAttribute("id"));
+      let startDate = this.addDays(lastDate, 1);
 
-    this.containerElem.append(this.createWeekBar());
+      const EXTRA_WEEKS = 4;
+      this.numWeeks += EXTRA_WEEKS;
+      this.createDayRows(EXTRA_WEEKS, startDate);
+      this.renderDeadlines(startDate, this.addDays(startDate, EXTRA_WEEKS * 7));
+    });
+  }
 
+  createDayRows(numRows: number, startDate: Date) {
     // create a row of dates
     let offset = 0;
     let lastDate = startDate;
-    for (let i = 0; i < this.numWeeks; i++) {
+    for (let i = 0; i < numRows; i++) {
       // check if we need to add a new month bar
       let weekLater = this.addDays(lastDate, 7);
+      // if the last day is a monday
+      // (this happens when using the show more button)
+      if (lastDate.getDay() == 1) {
+        weekLater = this.addDays(lastDate, 6);
+      }
+      // don't do this at the beginning of day creation
       if (weekLater.getDate() < lastDate.getDate()) {
         let newMonthName = weekLater.toLocaleString("default", {month: "long"});
-        this.containerElem.append(this.createMonthBar(newMonthName, weekLater.getFullYear()));
+        this.dayContainer.append(this.createMonthBar(newMonthName, weekLater.getFullYear()));
       }
 
       // create each day in the row
       for (let j = 0; j < 7; j++) {
         let newDate = this.addDays(startDate, offset);
-        this.containerElem.append(this.createDayBlock(newDate));
+        this.dayContainer.append(this.createDayBlock(newDate));
         lastDate = newDate;
         offset++;
       }
     }
-
-    this.renderDeadlines();
   }
 
-  renderDeadlines() {
-    console.log(this.deadlineData);
-    let skipping = false;
-    // render all the deadlines
+  renderDeadlines(startDate: Date, endDate: Date) {
     this.deadlineData.forEach(dl => {
-      // TODO: skip dates before current week
+      // skip dates before & after the designated period
       // only render dates that aren't "done"
-      if (!skipping && dl.status != "done") {
+      if (dl.date >= startDate && dl.date <= endDate && dl.status != "done") {
         // find the block to add it to
         let dateStr = this.dateToFormatString(dl.date);
         // console.log(dateStr + "for date " + dl.date.toUTCString());
         let block = document.getElementById(dateStr);
-
-        // if this date isn't on the calendar, then stop
-        // because we've gone too far into the future
-        if (block != null) {
-          this.createDeadlineBlock(dl, block);
-        } else {
-          skipping = true;
-        }
+        this.createDeadlineBlock(dl, block);
       }
     });
   }
@@ -191,18 +207,38 @@ export default class DeadlineView extends ItemView {
       let newLeaf = this.app.workspace.splitActiveLeaf("horizontal");
       await newLeaf.openFile(deadline.note);
     });
-    calBlock.append(deadlineElem);
+    if (calBlock == null) {
+      console.error("null day block for " + deadline.date);
+    } else {
+      calBlock.append(deadlineElem);
+    }
   }
 
   getNthDayBlock(n: number) {
     // skip month bar and week bar
-    return this.containerElem.children.item(2 + n);
+    return this.dayContainer.children.item(2 + n);
   }
 
   addDays(date: Date, days: number) {
     var result = new Date(date);
     result.setDate(result.getDate() + days);
     return result;
+  }
+
+  // used to handle timezones vs. utc for creating a date from a string
+  createDateFromText(text: string) {
+    // we have to copy the date to a new object here
+    // reading the date from the file creates a new date on that day at 00:00 UTC
+    // which can become a different day in local time
+    // so we need to make a day based on now in local time
+    // and then copy the date data over from the date in the frontmatter
+    // dates are weird and this sucks
+    let utcDate = new Date(text);
+    let localDate = new Date();
+    localDate.setFullYear(utcDate.getUTCFullYear());
+    localDate.setMonth(utcDate.getUTCMonth());
+    localDate.setDate(utcDate.getUTCDate());
+    return localDate;
   }
 
   getDeadlineData() {
@@ -214,20 +250,9 @@ export default class DeadlineView extends ItemView {
       let cacheInfo = this.app.metadataCache.getFileCache(file);
       // only process files with a deadline in the frontmatter
       if (cacheInfo.frontmatter && cacheInfo.frontmatter.deadline != undefined) {
-        // we have to copy the date to a new object here
-        // reading the date from the file creates a new date on that day at 00:00 UTC
-        // which can become a different day in local time
-        // so we need to make a day based on now in local time
-        // and then copy the date data over from the date in the frontmatter
-        // dates are weird and this sucks
-        let utcDate = new Date(cacheInfo.frontmatter.deadline);
-        let localDate = new Date();
-        localDate.setFullYear(utcDate.getUTCFullYear());
-        localDate.setMonth(utcDate.getUTCMonth());
-        localDate.setDate(utcDate.getUTCDate());
         data.push(new Deadline(
           cacheInfo.frontmatter.name,
-          localDate,
+          this.createDateFromText(cacheInfo.frontmatter.deadline),
           cacheInfo.frontmatter.group,
           cacheInfo.frontmatter.status,
           file
