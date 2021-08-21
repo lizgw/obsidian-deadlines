@@ -1,14 +1,17 @@
+import DeadlinePlugin from "main";
 import { App, Modal } from "obsidian";
 import { DeadlinePluginSettings } from "settings";
 
 export default class DeadlineCreationModal extends Modal {
 	settings: DeadlinePluginSettings;
+	plugin: DeadlinePlugin;
 	defaultDate: Date;
 
-	constructor(app: App, settings: DeadlinePluginSettings, defaultDate?: Date) {
+	constructor(app: App, plugin: DeadlinePlugin, defaultDate?: Date) {
 		super(app);
 
-		this.settings = settings;
+		this.plugin = plugin;
+		this.settings = this.plugin.settings;
 		this.defaultDate = defaultDate;
 	}
 
@@ -56,9 +59,10 @@ export default class DeadlineCreationModal extends Modal {
 		groupField.setAttribute("class", "dropdown");
 		// load groups from settings
 		const groups = [""].concat(this.settings.groupList.split("\n"));
-		groups.forEach(groupName => {
+		groups.forEach(groupText => {
 			let opt = groupField.appendChild(document.createElement("option"));
-			opt.setAttribute("value", groupName);
+			let groupName = this.plugin.getGroupName(groupText);
+			opt.setAttribute("value", groupText);
 			opt.innerText = groupName;
 		});
 

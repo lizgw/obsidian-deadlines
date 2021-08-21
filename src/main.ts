@@ -36,7 +36,7 @@ export default class DeadlinePlugin extends Plugin {
 	}
 
 	createDeadlineModal(date?: Date) {
-		const modal = new DeadlineCreationModal(this.app, this.settings, date);
+		const modal = new DeadlineCreationModal(this.app, this, date);
 		modal.open();
 		const createBtn = document.getElementById("btn-create-deadline");
 		const cancelBtn = document.getElementById("btn-cancel-new-deadline");
