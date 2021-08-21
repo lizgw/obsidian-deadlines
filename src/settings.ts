@@ -41,12 +41,12 @@ export class DeadlinePluginSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Groups")
-			.setDesc("Newline-separated list of groups to use")
+			.setDesc("Newline-separated list of groups and colors")
 			.addTextArea(text => text
 				.setValue(this.plugin.settings.groupList)
 				.onChange(async (value) => {
 					this.plugin.settings.groupList = value;
 					await this.plugin.saveSettings();
-				}))
+				}));
 	}
 }

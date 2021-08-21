@@ -66,10 +66,23 @@ export default class DeadlinePlugin extends Plugin {
 		await this.saveData(this.settings);
 	}
 
+	getGroupName(groupText: string) {
+		let end = groupText.indexOf("[");
+		return groupText.substring(0, end - 1);
+	}
+
+	getGroupColor(groupText: string) {
+		let start = groupText.indexOf("[");
+		let end = groupText.indexOf("]");
+		return groupText.substring(start + 1, end);
+	}
+
 	async createNewDeadline(modal: Modal) {
 		let deadlineTitle = (<HTMLInputElement> document.getElementById("deadline-title")).value;
 		let deadlineDate = (<HTMLInputElement> document.getElementById("deadline-date")).value;
-		let deadlineGroup = (<HTMLSelectElement> document.getElementById("deadline-group")).value;
+		let deadlineGroupText = (<HTMLSelectElement> document.getElementById("deadline-group")).value;
+		let deadlineGroup = this.getGroupName(deadlineGroupText);
+		let deadlineColor = this.getGroupColor(deadlineGroupText);
 
 		let deadlineFilename = `${deadlineDate} ${deadlineGroup} ${deadlineTitle}`;
 

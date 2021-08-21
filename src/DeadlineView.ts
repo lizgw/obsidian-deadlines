@@ -19,6 +19,7 @@ export default class DeadlineView extends ItemView {
   deadlineData: Deadline[];
   containerElem: HTMLDivElement;
   dayContainer: HTMLDivElement;
+  groupColorMap: Map<string, string>;
 
   constructor(leaf: WorkspaceLeaf, plugin: DeadlinePlugin) {
     super(leaf);
@@ -29,6 +30,8 @@ export default class DeadlineView extends ItemView {
 
     this.containerElem = this.contentEl.createDiv();
     this.containerElem.setAttribute("id", "container");
+
+    this.groupColorMap = new Map();
   }
 
   onload() {
@@ -51,6 +54,7 @@ export default class DeadlineView extends ItemView {
     this.dayContainer.append(this.createMonthBar(todayMonthStr, today.getFullYear()));
     this.dayContainer.append(this.createWeekBar());    
     this.createDayRows(this.numWeeks, startDate);
+    this.buildGroupColorMap();
     this.renderDeadlines(startDate, this.addDays(startDate, (this.numWeeks * 7)));
 
     let moreBtn = this.containerElem.createEl("button", {
@@ -67,6 +71,15 @@ export default class DeadlineView extends ItemView {
       this.numWeeks += EXTRA_WEEKS;
       this.createDayRows(EXTRA_WEEKS, startDate);
       this.renderDeadlines(startDate, this.addDays(startDate, EXTRA_WEEKS * 7));
+    });
+  }
+
+  buildGroupColorMap() {
+    let groups = this.plugin.settings.groupList.split("\n");
+    groups.forEach(group => {
+      let gName = this.plugin.getGroupName(group);
+      let gColor = this.plugin.getGroupColor(group);
+      this.groupColorMap.set(gName, gColor);
     });
   }
 
@@ -209,6 +222,12 @@ export default class DeadlineView extends ItemView {
 
   createDeadlineBlock(deadline: Deadline, calBlock: Element) {
     let deadlineElem = deadline.createElement();
+
+    // set the color based on the group
+    if (deadline.group != "") {
+      let groupBlock = <HTMLParagraphElement> deadlineElem.children[1];
+      groupBlock.style.backgroundColor = this.groupColorMap.get(deadline.group);
+    }
 
     // add some styling if it's in the "doing" state
     let metadata = this.app.metadataCache.getFileCache(deadline.note);

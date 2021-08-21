@@ -169,6 +169,8 @@ label {
   font-size: 0.7rem;
   line-height: 0.85rem;
   margin: 0;
+  padding: 0.1rem;
+  border-radius: 0.2rem;
 }
 
 .calendar-deadline-doing {
