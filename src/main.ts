@@ -70,8 +70,11 @@ export default class DeadlinePlugin extends Plugin {
 		let deadlineDate = (<HTMLInputElement> document.getElementById("deadline-date")).value;
 		let deadlineGroup = (<HTMLSelectElement> document.getElementById("deadline-group")).value;
 
+		let deadlineFilename = `${deadlineDate} ${deadlineGroup} ${deadlineTitle}`;
+
 		let frontMatter = "---\n" + 
-			"deadline: " + deadlineDate +
+			"name: " + deadlineTitle +
+			"\ndeadline: " + deadlineDate +
 			"\ngroup: " + deadlineGroup + 
 			"\nstatus: todo\n---";
 
@@ -91,7 +94,7 @@ export default class DeadlinePlugin extends Plugin {
 			// @ts-ignore
 			const deadlineFile = await this.app.fileManager.createNewMarkdownFile(
         folder,
-        deadlineTitle
+        deadlineFilename
       );
 			// write the frontmatter to the file
 			await this.app.vault.modify(deadlineFile, frontMatter);

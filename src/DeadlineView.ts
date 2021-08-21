@@ -226,7 +226,7 @@ export default class DeadlineView extends ItemView {
         localDate.setMonth(utcDate.getUTCMonth());
         localDate.setDate(utcDate.getUTCDate());
         data.push(new Deadline(
-          file.basename,
+          cacheInfo.frontmatter.name,
           localDate,
           cacheInfo.frontmatter.group,
           cacheInfo.frontmatter.status,
