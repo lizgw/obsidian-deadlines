@@ -1,6 +1,7 @@
 import { Modal, Plugin} from 'obsidian';
 import DeadlineView from './DeadlineView';
 import DeadlineCreationModal from 'DeadlineCreationModal';
+import Deadline from 'Deadline';
 import {DeadlinePluginSettings, DeadlinePluginSettingTab, DEFAULT_SETTINGS} from './settings';
 
 export default class DeadlinePlugin extends Plugin {
@@ -98,10 +99,26 @@ export default class DeadlinePlugin extends Plugin {
       );
 			// write the frontmatter to the file
 			await this.app.vault.modify(deadlineFile, frontMatter);
+
+			// update open deadline views with new deadline
+			let deadlineLeaves = this.app.workspace.getLeavesOfType("deadline");
+			deadlineLeaves.forEach(leaf => {
+				let view = <DeadlineView> leaf.view;
+				let date = view.createDateFromText(deadlineDate);
+				view.renderSingleDeadline(new Deadline(
+					deadlineTitle,
+					date,
+					deadlineGroup,
+					"todo",
+					deadlineFile
+				));
+			});
+			// we don't have to worry about adding it to the deadline list
+			// because it'll get updated next time the view opens
 		} catch (err) {
-			console.error("error creating file");
+			console.error("error creating file", err);
 		}
-		
+
 		// now close
 		modal.close();
 	}

@@ -102,14 +102,20 @@ export default class DeadlineView extends ItemView {
     this.deadlineData.forEach(dl => {
       // skip dates before & after the designated period
       // only render dates that aren't "done"
-      if (dl.date >= startDate && dl.date <= endDate && dl.status != "done") {
-        // find the block to add it to
-        let dateStr = this.dateToFormatString(dl.date);
-        // console.log(dateStr + "for date " + dl.date.toUTCString());
-        let block = document.getElementById(dateStr);
-        this.createDeadlineBlock(dl, block);
+      if (dl.date >= startDate && dl.date <= endDate) {
+        this.renderSingleDeadline(dl);
       }
     });
+  }
+
+  renderSingleDeadline(dl: Deadline) {
+    if (dl.status != "done") {
+      // find the block to add it to
+      let dateStr = this.dateToFormatString(dl.date);
+      // console.log(dateStr + "for date " + dl.date.toUTCString());
+      let block = document.getElementById(dateStr);
+      this.createDeadlineBlock(dl, block);
+    }
   }
 
   getDisplayText() {
@@ -206,7 +212,7 @@ export default class DeadlineView extends ItemView {
 
     // add some styling if it's in the "doing" state
     let metadata = this.app.metadataCache.getFileCache(deadline.note);
-    if (metadata.frontmatter.status == "doing") {
+    if (metadata && metadata.frontmatter && metadata.frontmatter.status == "doing") {
       deadlineElem.addClass("calendar-deadline-doing");
     }
 
