@@ -173,4 +173,5 @@ label {
 
 .calendar-deadline-doing {
   border-color: 1px solid var(--interactive-accent);
+  background: var(--background-secondary-alt);
 }
