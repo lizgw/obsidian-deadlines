@@ -226,7 +226,15 @@ export default class DeadlineView extends ItemView {
     // set the color based on the group
     if (deadline.group != "") {
       let groupBlock = <HTMLParagraphElement> deadlineElem.children[1];
-      groupBlock.style.backgroundColor = this.groupColorMap.get(deadline.group);
+      // need to convert to alpha to have a semi-transparent background color
+      let hex = this.groupColorMap.get(deadline.group);
+      const ALPHA = 0.4;
+      // thanks https://stackoverflow.com/questions/21646738/convert-hex-to-rgba
+      var r = parseInt(hex.slice(1, 3), 16),
+        g = parseInt(hex.slice(3, 5), 16),
+        b = parseInt(hex.slice(5, 7), 16);
+      let colorStr = "rgba(" + r + ", " + g + ", " + b + ", " + ALPHA + ")";
+      groupBlock.style.backgroundColor = colorStr;
     }
 
     // add some styling if it's in the "doing" state
