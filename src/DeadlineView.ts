@@ -203,6 +203,13 @@ export default class DeadlineView extends ItemView {
 
   createDeadlineBlock(deadline: Deadline, calBlock: Element) {
     let deadlineElem = deadline.createElement();
+
+    // add some styling if it's in the "doing" state
+    let metadata = this.app.metadataCache.getFileCache(deadline.note);
+    if (metadata.frontmatter.status == "doing") {
+      deadlineElem.addClass("calendar-deadline-doing");
+    }
+
     // click to open the file
     this.registerDomEvent(deadlineElem, "click", async () => {
       let newLeaf = this.app.workspace.splitActiveLeaf("horizontal");
