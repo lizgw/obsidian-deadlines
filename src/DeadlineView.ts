@@ -224,7 +224,7 @@ export default class DeadlineView extends ItemView {
     let deadlineElem = deadline.createElement();
 
     // set the color based on the group
-    if (deadline.group != "") {
+    if (this.groupColorMap.has(deadline.group)) {
       let groupBlock = <HTMLParagraphElement> deadlineElem.children[1];
       // need to convert to alpha to have a semi-transparent background color
       let hex = this.groupColorMap.get(deadline.group);
