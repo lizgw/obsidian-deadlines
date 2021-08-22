@@ -7,7 +7,7 @@ This is a plugin for [Obsidian](https://obsidian.md), created from their plugin 
 ## Using the plugin
 ### Manually installing the plugin
 
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
+- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`. You can get these files from the [releases page](https://github.com/lizgw/obsidian-deadlines/releases).
 
 Alternatively, clone this repo into the same location as above, run `npm install`, then `npm run build`.
 
