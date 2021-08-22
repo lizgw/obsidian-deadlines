@@ -1,5 +1,7 @@
 # Obsidian Deadlines
 
+![image of Obsidian Deadlines calendar view](docs/calendar-view.png)
+
 This is a plugin for [Obsidian](https://obsidian.md), created from their plugin template.
 
 **Note:** The Obsidian API is still in early alpha and is subject to change at any time! That means this plugin may break without warning.
