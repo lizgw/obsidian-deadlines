@@ -65,7 +65,9 @@ label {
 .calendar-month-bar {
   flex-basis: 100%;
   flex-grow: 1;
-  /* border: 1px solid var(--background-modifier-border); */
+  width: 100%;
+  border: solid var(--background-modifier-border);
+  border-width: 0px 0px 1px 0px;
 }
 
 .calendar-month-bar h2 {
@@ -90,22 +92,38 @@ label {
 .calendar-week-bar span {
   padding: 0.2rem;
   width: calc(100% / 7);
-  border: 1px solid var(--background-modifier-border);
+  border: solid var(--background-modifier-border);
+  border-width: 0px 1px 1px 0px;
   text-align: center;
+}
+
+.calendar-week-bar span:first-of-type {
+  border-left-width: 1px;
 }
 
 .calendar-week-row {
   display: flex;
   flex-direction: row;
   width: 100%;
+  border: solid var(--background-modifier-border);
+  border-width: 0px 0px 1px 0px;
+}
+
+.calendar-week-row:first-of-type {
+  border-top-width: 1px;
 }
 
 .calendar-day-block {
   width: calc(100% / 7);
   border: 1px solid var(--background-modifier-border);
+  border-width: 0px 1px 0px 0px;
   min-height: 8rem;
   position: relative;
   padding: 0.2rem;
+}
+
+.calendar-day-block:first-of-type {
+  border-left-width: 1px;
 }
 
 .calendar-day-block-number {
