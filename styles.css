@@ -52,9 +52,9 @@ label {
 
 #calendar-container {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   flex-wrap: wrap;
-  max-width: 100%;
+  width: 100%;
   min-width: 500px;
   padding: 0.5rem;
   justify-content: flex-start;
@@ -84,6 +84,7 @@ label {
   flex-direction: row;
   justify-content: space-evenly;
   flex-basis: 100%;
+  width: 100%;
 }
 
 .calendar-week-bar span {
@@ -91,6 +92,12 @@ label {
   width: calc(100% / 7);
   border: 1px solid var(--background-modifier-border);
   text-align: center;
+}
+
+.calendar-week-row {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
 }
 
 .calendar-day-block {

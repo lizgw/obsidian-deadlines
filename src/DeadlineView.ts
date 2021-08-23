@@ -63,7 +63,7 @@ export default class DeadlineView extends ItemView {
     });
     this.registerDomEvent(moreBtn, "click", () => {
       // get last day block
-      let lastDay = <HTMLDivElement> this.dayContainer.lastChild;
+      let lastDay = <HTMLDivElement> this.dayContainer.lastChild.lastChild;
       let lastDate = this.createDateFromText(lastDay.getAttribute("id"));
       let startDate = this.addDays(lastDate, 1);
 
@@ -101,10 +101,15 @@ export default class DeadlineView extends ItemView {
         this.dayContainer.append(this.createMonthBar(newMonthName, weekLater.getFullYear()));
       }
 
+      // create a div to hold the week
+      let weekContainer = this.dayContainer.createDiv({
+        cls: "calendar-week-row"
+      });
+
       // create each day in the row
       for (let j = 0; j < 7; j++) {
         let newDate = this.addDays(startDate, offset);
-        this.dayContainer.append(this.createDayBlock(newDate));
+        weekContainer.append(this.createDayBlock(newDate));
         lastDate = newDate;
         offset++;
       }
@@ -275,11 +280,6 @@ export default class DeadlineView extends ItemView {
     } else {
       calBlock.append(deadlineElem);
     }
-  }
-
-  getNthDayBlock(n: number) {
-    // skip month bar and week bar
-    return this.dayContainer.children.item(2 + n);
   }
 
   addDays(date: Date, days: number) {
