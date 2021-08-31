@@ -299,8 +299,7 @@ export default class DeadlineView extends ItemView {
     let utcDate = new Date(text);
     let localDate = new Date();
     localDate.setFullYear(utcDate.getUTCFullYear());
-    localDate.setMonth(utcDate.getUTCMonth());
-    localDate.setDate(utcDate.getUTCDate());
+    localDate.setMonth(utcDate.getUTCMonth(), utcDate.getUTCDate());
     return localDate;
   }
 
