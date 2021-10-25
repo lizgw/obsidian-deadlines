@@ -120,7 +120,7 @@ export default class DeadlineView extends ItemView {
     this.deadlineData.forEach(dl => {
       // skip dates before & after the designated period
       // only render dates that aren't "done"
-      if (dl.date >= startDate && dl.date <= endDate) {
+      if (dl.compareDate(startDate) >= 0 && dl.compareDate(endDate) <= 0) {
         this.renderSingleDeadline(dl);
       }
     });

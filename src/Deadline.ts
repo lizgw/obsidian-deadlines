@@ -16,9 +16,24 @@ export default class Deadline {
   }
 
   compare(other: Deadline) {
-    if (this.date < other.date) {
+    return this.compareDate(other.date);
+  }
+
+  // compare based only on day, not on time within that day
+  compareDate(other: Date) {
+    var earlierYear = this.date.getFullYear() < other.getFullYear();
+    var sameYear = this.date.getFullYear() == other.getFullYear();
+    var earlierMonth = this.date.getMonth() < other.getMonth();
+    var sameMonth = this.date.getMonth() == other.getMonth();
+    var earlierDay = this.date.getDate() < other.getDate();
+    var sameDay = this.date.getDate() == other.getDate();
+
+    if (earlierYear ||
+       (sameYear && earlierMonth) ||
+       (sameYear && sameMonth && earlierDay))
+    {
       return -1;
-    } else if (this.date == other.date) {
+    } else if (sameYear && sameMonth && sameDay) {
       return 0;
     } else {
       return 1;
