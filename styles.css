@@ -1,28 +1,28 @@
-.wrapper {
+.deadline-modal-wrapper {
   display: flex;
   margin-bottom: 1rem;
 }
 
-.wrapper-left {
+.deadline-modal-wrapper-left {
   margin-right: 1rem;
 }
 
-.wrapper-right{
+.deadline-modal-wrapper-right{
   flex-grow: 1;
 }
 
-.wrapper div {
+.deadline-modal-wrapper div {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
-h1 {
+.modal-content h1 {
   font-size: 1.5rem;
   margin-top: 0;
 }
 
-label {
+.deadline-modal-wrapper label {
   display: block;
   margin: 0.5rem;
 }

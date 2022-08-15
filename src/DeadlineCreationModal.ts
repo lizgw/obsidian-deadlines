@@ -19,16 +19,16 @@ export default class DeadlineCreationModal extends Modal {
 		let {contentEl} = this;
 		
 		const wrapper = document.createElement("div");
-    wrapper.setAttribute("class", "wrapper");
+    wrapper.setAttribute("class", "deadline-modal-wrapper");
 
     const title = contentEl.appendChild(document.createElement("h1"));
     title.innerText = "Create New Deadline";
 
 		const leftDiv = wrapper.appendChild(document.createElement("div"));
-		leftDiv.setAttribute("class", "wrapper-left");
+		leftDiv.setAttribute("class", "deadline-modal-wrapper-left");
 
 		const rightDiv = wrapper.appendChild(document.createElement("div"));
-		rightDiv.setAttribute("class", "wrapper-right");
+		rightDiv.setAttribute("class", "deadline-modal-wrapper-right");
 
 		const titleLabel = leftDiv.appendChild(document.createElement("label"));
 		titleLabel.setAttribute("for", "deadline-title");
