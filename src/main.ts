@@ -1,5 +1,5 @@
 import { Modal, Plugin} from 'obsidian';
-import DeadlineView from './DeadlineView';
+import {DeadlineView, VIEW_TYPE_DEADLINES} from './DeadlineView';
 import DeadlineCreationModal from 'DeadlineCreationModal';
 import Deadline from 'Deadline';
 import {DeadlinePluginSettings, DeadlinePluginSettingTab, DEFAULT_SETTINGS} from './settings';
@@ -12,7 +12,7 @@ export default class DeadlinePlugin extends Plugin {
 
 		this.addSettingTab(new DeadlinePluginSettingTab(this.app, this));
 
-		this.registerView("deadline", (leaf) => new DeadlineView(leaf, this));
+		this.registerView(VIEW_TYPE_DEADLINES, (leaf) => new DeadlineView(leaf, this));
 
 		this.addRibbonIcon("calendar-with-checkmark", "Deadline View", () => {
 			this.openDeadlineView();
@@ -49,13 +49,21 @@ export default class DeadlinePlugin extends Plugin {
 	}
 
 	async openDeadlineView() {
-		const leaf = this.app.workspace.getLeaf(false);
-		const deadlineView = new DeadlineView(leaf, this);
-		await this.app.workspace.activeLeaf.open(deadlineView);
+		this.app.workspace.detachLeavesOfType(VIEW_TYPE_DEADLINES);
+
+    await this.app.workspace.getLeaf(false).setViewState({
+      type: VIEW_TYPE_DEADLINES,
+      active: true,
+    });
+
+    this.app.workspace.revealLeaf(
+      this.app.workspace.getLeavesOfType(VIEW_TYPE_DEADLINES)[0]
+    );
 	}
 
-	onunload() {
+	async onunload() {
 		// console.log('unloading plugin');
+		this.app.workspace.detachLeavesOfType(VIEW_TYPE_DEADLINES);
 	}
 
 	async loadSettings() {
@@ -114,7 +122,7 @@ export default class DeadlinePlugin extends Plugin {
 			await this.app.vault.modify(deadlineFile, frontMatter);
 
 			// update open deadline views with new deadline
-			let deadlineLeaves = this.app.workspace.getLeavesOfType("deadline");
+			let deadlineLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_DEADLINES);
 			deadlineLeaves.forEach(leaf => {
 				let view = <DeadlineView> leaf.view;
 				let date = view.createDateFromText(deadlineDate);

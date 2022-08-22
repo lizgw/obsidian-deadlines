@@ -2,6 +2,8 @@ import DeadlinePlugin from "main";
 import {ItemView, WorkspaceLeaf} from "obsidian";
 import Deadline from "Deadline";
 
+export const VIEW_TYPE_DEADLINES = "deadline";
+
 // TODO: i8n?
 const WEEKDAYS = [
   "Mon",
@@ -13,7 +15,7 @@ const WEEKDAYS = [
   "Sun"
 ];
 
-export default class DeadlineView extends ItemView {
+export class DeadlineView extends ItemView {
   plugin: DeadlinePlugin;
   numWeeks: number;
   deadlineData: Deadline[];
@@ -141,7 +143,7 @@ export default class DeadlineView extends ItemView {
   }
 
   getViewType() {
-    return "deadline";
+    return VIEW_TYPE_DEADLINES;
   }
 
   getIcon() {
