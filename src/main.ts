@@ -51,7 +51,7 @@ export default class DeadlinePlugin extends Plugin {
 	async openDeadlineView() {
 		this.app.workspace.detachLeavesOfType(VIEW_TYPE_DEADLINES);
 
-    await this.app.workspace.getLeaf(false).setViewState({
+    await this.app.workspace.getLeaf('tab').setViewState({
       type: VIEW_TYPE_DEADLINES,
       active: true,
     });
