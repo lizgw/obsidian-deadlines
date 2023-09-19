@@ -36,7 +36,8 @@
   border: 1px solid var(--background-modifier-border);
   border-radius: 0.5rem;
   background-color: var(--background-modifier-form-field);
-  padding: 0.4em;
+  padding: 0.4rem;
+  padding-left: 2rem;
 }
 
 #btn-create-deadline {
