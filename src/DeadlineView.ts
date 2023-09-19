@@ -49,6 +49,7 @@ export class DeadlineView extends ItemView {
       pos = 6;
     }
     // subtract some days depending on where this date is on the calendar
+    // so monday appears in the monday column, etc.
     let startDate = this.addDays(today, (pos * -1));
     
     this.dayContainer = this.containerElem.createDiv();
@@ -203,13 +204,13 @@ export class DeadlineView extends ItemView {
       cls: "calendar-add-btn"
     });
     addBtn.addEventListener("click", () => {
-      this.plugin.createDeadlineModal(date);
+      this.plugin.createDeadlineModal(this.dateToFormatString(date));
     })
 
     return block;
   }
 
-  // this deals in local time!
+  // this builds an ISO-like string in local time!
   dateToFormatString(date: Date) {
     let month = date.getMonth() + 1;
     let year = date.getFullYear();

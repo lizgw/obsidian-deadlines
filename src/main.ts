@@ -51,14 +51,14 @@ export default class DeadlinePlugin extends Plugin {
 	async openDeadlineView() {
 		this.app.workspace.detachLeavesOfType(VIEW_TYPE_DEADLINES);
 
-    await this.app.workspace.getLeaf('tab').setViewState({
-      type: VIEW_TYPE_DEADLINES,
-      active: true,
-    });
+		await this.app.workspace.getLeaf('tab').setViewState({
+			type: VIEW_TYPE_DEADLINES,
+			active: true,
+		});
 
-    this.app.workspace.revealLeaf(
-      this.app.workspace.getLeavesOfType(VIEW_TYPE_DEADLINES)[0]
-    );
+		this.app.workspace.revealLeaf(
+			this.app.workspace.getLeavesOfType(VIEW_TYPE_DEADLINES)[0]
+		);
 	}
 
 	async onunload() {
@@ -111,13 +111,13 @@ export default class DeadlinePlugin extends Plugin {
 		}
 
 		try {
-			// the createNewMarkdownFile function exists(, even if it's not in the ts files
+			// the createNewMarkdownFile function exists, even if it's not in the ts files
 			// (got this from the code for obsidian-kanban)
 			// @ts-ignore
 			const deadlineFile = await this.app.fileManager.createNewMarkdownFile(
-        folder,
-        deadlineFilename
-      );
+				folder,
+				deadlineFilename
+			);
 			// write the frontmatter to the file
 			await this.app.vault.modify(deadlineFile, frontMatter);
 

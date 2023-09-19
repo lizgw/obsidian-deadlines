@@ -5,9 +5,9 @@ import { DeadlinePluginSettings } from "settings";
 export default class DeadlineCreationModal extends Modal {
 	settings: DeadlinePluginSettings;
 	plugin: DeadlinePlugin;
-	defaultDate: Date;
+	defaultDate: string;
 
-	constructor(app: App, plugin: DeadlinePlugin, defaultDate?: Date) {
+	constructor(app: App, plugin: DeadlinePlugin, defaultDate?: string) {
 		super(app);
 
 		this.plugin = plugin;
@@ -19,10 +19,10 @@ export default class DeadlineCreationModal extends Modal {
 		let {contentEl} = this;
 		
 		const wrapper = document.createElement("div");
-    wrapper.setAttribute("class", "deadline-modal-wrapper");
+		wrapper.setAttribute("class", "deadline-modal-wrapper");
 
-    const title = contentEl.appendChild(document.createElement("h1"));
-    title.innerText = "Create New Deadline";
+		const title = contentEl.appendChild(document.createElement("h1"));
+		title.innerText = "Create New Deadline";
 
 		const leftDiv = wrapper.appendChild(document.createElement("div"));
 		leftDiv.setAttribute("class", "deadline-modal-wrapper-left");
@@ -46,10 +46,22 @@ export default class DeadlineCreationModal extends Modal {
 		// set default value to today or whatever was passed in
 		let today = this.defaultDate;
 		if (today == undefined) {
-			today = new Date();
+			let date = new Date();
+			let month = date.getMonth() + 1;
+			let year = date.getFullYear();
+			let day = date.getDate();
+
+			today = `${year}-`;
+			if (month < 10) {
+			today += "0";
+			}
+			today += month + "-";
+			if (day < 10) {
+			today += "0";
+			}
+			today += day;
 		}
-		const todayString = today.toISOString().substring(0, 10);
-		dateField.setAttribute("value", todayString);
+		dateField.setAttribute("value", today);
 
 		const groupLabel = leftDiv.appendChild(document.createElement("label"));
 		groupLabel.setAttribute("for", "deadline-group");
