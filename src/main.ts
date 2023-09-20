@@ -36,7 +36,7 @@ export default class DeadlinePlugin extends Plugin {
 	}
 
 	createDeadlineModal(date?: Date) {
-		const modal = new DeadlineCreationModal(this.app, this, date);
+		const modal = new DeadlineCreationModal(this.app, this, this.dateToFormatString(date));
 		modal.open();
 		const createBtn = document.getElementById("btn-create-deadline");
 		const cancelBtn = document.getElementById("btn-cancel-new-deadline");
@@ -125,7 +125,7 @@ export default class DeadlinePlugin extends Plugin {
 			let deadlineLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_DEADLINES);
 			deadlineLeaves.forEach(leaf => {
 				let view = <DeadlineView> leaf.view;
-				let date = view.createDateFromText(deadlineDate);
+				let date = this.createDateFromText(deadlineDate);
 				view.renderSingleDeadline(new Deadline(
 					deadlineTitle,
 					date,
@@ -143,4 +143,37 @@ export default class DeadlinePlugin extends Plugin {
 		// now close
 		modal.close();
 	}
+
+	// used to handle timezones vs. utc for creating a date from a string
+	createDateFromText(text: string) {
+		// we have to copy the date to a new object here
+		// reading the date from the file creates a new date on that day at 00:00 UTC
+		// which can become a different day in local time
+		// so we need to make a day based on now in local time
+		// and then copy the date data over from the date in the frontmatter
+		// dates are weird and this sucks
+		let utcDate = new Date(text);
+		let localDate = new Date();
+		localDate.setFullYear(utcDate.getUTCFullYear());
+		localDate.setMonth(utcDate.getUTCMonth(), utcDate.getUTCDate());
+		return localDate;
+  }
+
+  // this builds an ISO-like string in local time!
+  dateToFormatString(date: Date) {
+    let month = date.getMonth() + 1;
+    let year = date.getFullYear();
+    let day = date.getDate();
+
+    let result = `${year}-`;
+    if (month < 10) {
+      result += "0";
+    }
+    result += month + "-";
+    if (day < 10) {
+      result += "0";
+    }
+    result += day;
+    return result;
+  }
 }

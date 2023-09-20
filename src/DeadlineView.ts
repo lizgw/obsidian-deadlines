@@ -67,7 +67,7 @@ export class DeadlineView extends ItemView {
     this.registerDomEvent(moreBtn, "click", () => {
       // get last day block
       let lastDay = <HTMLDivElement> this.dayContainer.lastChild.lastChild;
-      let lastDate = this.createDateFromText(lastDay.getAttribute("id"));
+      let lastDate = this.plugin.createDateFromText(lastDay.getAttribute("id"));
       let startDate = this.addDays(lastDate, 1);
 
       const EXTRA_WEEKS = 4;
@@ -132,7 +132,7 @@ export class DeadlineView extends ItemView {
   renderSingleDeadline(dl: Deadline) {
     if (dl.status != "done") {
       // find the block to add it to
-      let dateStr = this.dateToFormatString(dl.date);
+      let dateStr = this.plugin.dateToFormatString(dl.date);
       // console.log(dateStr + "for date " + dl.date.toUTCString());
       let block = document.getElementById(dateStr);
       this.createDeadlineBlock(dl, block);
@@ -182,7 +182,7 @@ export class DeadlineView extends ItemView {
       text: "" + date.getDate(),
       cls: "calendar-day-block-number"
     });
-    block.setAttribute("id", this.dateToFormatString(date));
+    block.setAttribute("id", this.plugin.dateToFormatString(date));
 
     // add a class to the weekends
     // TODO: make a toggle setting for this
@@ -204,32 +204,15 @@ export class DeadlineView extends ItemView {
       cls: "calendar-add-btn"
     });
     addBtn.addEventListener("click", () => {
-      this.plugin.createDeadlineModal(this.dateToFormatString(date));
+      this.plugin.createDeadlineModal(date);
     })
 
     return block;
   }
 
-  // this builds an ISO-like string in local time!
-  dateToFormatString(date: Date) {
-    let month = date.getMonth() + 1;
-    let year = date.getFullYear();
-    let day = date.getDate();
-
-    let result = `${year}-`;
-    if (month < 10) {
-      result += "0";
-    }
-    result += month + "-";
-    if (day < 10) {
-      result += "0";
-    }
-    result += day;
-    return result;
-  }
-
   createDeadlineBlock(deadline: Deadline, calBlock: Element) {
     let deadlineElem = deadline.createElement();
+    console.log(deadlineElem.classList);
 
     // set the color based on the group
     if (this.groupColorMap.has(deadline.group)) {
@@ -278,6 +261,16 @@ export class DeadlineView extends ItemView {
 
       this.app.vault.modify(noteFile, noteLines.join("\n"));
     })
+
+    // make it draggable
+    deadlineElem.setAttribute("draggable", "true");
+    this.registerDomEvent(deadlineElem, "dragstart", (ev) => {
+      console.log("drag start for " + deadline.name);
+    });
+    this.registerDomEvent(deadlineElem, "dragend", (ev) => {
+      console.log("drag end for " + deadline.name);
+    });
+
     if (calBlock == null) {
       console.error("null day block for " + deadline.date);
     } else {
@@ -291,21 +284,6 @@ export class DeadlineView extends ItemView {
     return result;
   }
 
-  // used to handle timezones vs. utc for creating a date from a string
-  createDateFromText(text: string) {
-    // we have to copy the date to a new object here
-    // reading the date from the file creates a new date on that day at 00:00 UTC
-    // which can become a different day in local time
-    // so we need to make a day based on now in local time
-    // and then copy the date data over from the date in the frontmatter
-    // dates are weird and this sucks
-    let utcDate = new Date(text);
-    let localDate = new Date();
-    localDate.setFullYear(utcDate.getUTCFullYear());
-    localDate.setMonth(utcDate.getUTCMonth(), utcDate.getUTCDate());
-    return localDate;
-  }
-
   getDeadlineData() {
     let data = <Deadline[]> [];
 
@@ -317,7 +295,7 @@ export class DeadlineView extends ItemView {
       if (cacheInfo.frontmatter && cacheInfo.frontmatter.deadline != undefined) {
         data.push(new Deadline(
           cacheInfo.frontmatter.name,
-          this.createDateFromText(cacheInfo.frontmatter.deadline),
+          this.plugin.createDateFromText(cacheInfo.frontmatter.deadline),
           cacheInfo.frontmatter.group,
           cacheInfo.frontmatter.status,
           file
