@@ -6,6 +6,7 @@ export default class Deadline {
   group: string;
   status: string;
   note: TFile;
+  uuid: string;
 
   constructor(name: string, date: Date, group: string, status: string, note: TFile) {
     this.name = name;
@@ -13,6 +14,8 @@ export default class Deadline {
     this.group = group;
     this.status = status;
     this.note = note;
+    // use a random uuid to help track the element for drag and drop
+    this.uuid = crypto.randomUUID();
   }
 
   compare(other: Deadline) {
@@ -42,6 +45,7 @@ export default class Deadline {
 
   createElement() {
     let el = document.createElement("div");
+    el.setAttribute("id", this.uuid);
     el.addClass("calendar-deadline");
     el.createEl("p", {
       text: this.name,

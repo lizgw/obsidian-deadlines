@@ -157,23 +157,23 @@ export default class DeadlinePlugin extends Plugin {
 		localDate.setFullYear(utcDate.getUTCFullYear());
 		localDate.setMonth(utcDate.getUTCMonth(), utcDate.getUTCDate());
 		return localDate;
-  }
+	}
 
-  // this builds an ISO-like string in local time!
-  dateToFormatString(date: Date) {
-    let month = date.getMonth() + 1;
-    let year = date.getFullYear();
-    let day = date.getDate();
+	// this builds an ISO-like string in local time!
+	dateToFormatString(date: Date) {
+		let month = date.getMonth() + 1;
+		let year = date.getFullYear();
+		let day = date.getDate();
 
-    let result = `${year}-`;
-    if (month < 10) {
-      result += "0";
-    }
-    result += month + "-";
-    if (day < 10) {
-      result += "0";
-    }
-    result += day;
-    return result;
-  }
+		let result = `${year}-`;
+		if (month < 10) {
+			result += "0";
+		}
+		result += month + "-";
+		if (day < 10) {
+			result += "0";
+		}
+		result += day;
+		return result;
+	}
 }

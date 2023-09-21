@@ -22,6 +22,7 @@ export class DeadlineView extends ItemView {
   containerElem: HTMLDivElement;
   dayContainer: HTMLDivElement;
   groupColorMap: Map<string, string>;
+  currentDragDeadline: Deadline;
 
   constructor(leaf: WorkspaceLeaf, plugin: DeadlinePlugin) {
     super(leaf);
@@ -34,6 +35,8 @@ export class DeadlineView extends ItemView {
     this.containerElem.setAttribute("id", "container");
 
     this.groupColorMap = new Map();
+
+    this.currentDragDeadline = null;
   }
 
   onload() {
@@ -207,12 +210,47 @@ export class DeadlineView extends ItemView {
       this.plugin.createDeadlineModal(date);
     })
 
+    // make it droppable
+    this.registerDomEvent(block, "drop", async (ev: DragEvent) => {
+      // move the element here when it's dropped
+      const elemId = ev.dataTransfer.getData("application/deadline-id");
+      const deadlineElem = document.getElementById(elemId);
+      block.appendChild(deadlineElem);
+      const targetDate = (<Element> ev.target).getAttribute("id");
+
+      // update date in deadline file
+      let noteFile = this.currentDragDeadline.note;
+      this.app.vault.process(noteFile, (data: string) => {
+        const endFrontmatter = data.indexOf("---", 3) + 3;
+        const noteContents = data.substring(endFrontmatter);
+        const frontmatter = data.substring(0, endFrontmatter).split("\n");
+        // replace the deadline in the frontmatter
+        for (let i = 0; i < frontmatter.length; i++) {
+          const line = frontmatter[i];
+          if (line.indexOf("deadline") == 0) {
+            frontmatter[i] = "deadline: " + targetDate;
+          }
+        }
+        // set note contents to new frontmatter and original contents
+        return frontmatter.join("\n") + noteContents;
+      });
+      this.currentDragDeadline = null;
+    });
+    // in order to allow drop, must prevent default for dragover and dragenter
+    function allowDeadlines(ev: DragEvent) {
+      // make sure that only deadlines are being dropped here
+      if (ev.dataTransfer.types.includes("application/deadline-id")) {
+        ev.preventDefault();
+      }
+    }
+    this.registerDomEvent(block, "dragover", allowDeadlines);
+    this.registerDomEvent(block, "dragenter", allowDeadlines);
+
     return block;
   }
 
   createDeadlineBlock(deadline: Deadline, calBlock: Element) {
     let deadlineElem = deadline.createElement();
-    console.log(deadlineElem.classList);
 
     // set the color based on the group
     if (this.groupColorMap.has(deadline.group)) {
@@ -264,11 +302,17 @@ export class DeadlineView extends ItemView {
 
     // make it draggable
     deadlineElem.setAttribute("draggable", "true");
-    this.registerDomEvent(deadlineElem, "dragstart", (ev) => {
-      console.log("drag start for " + deadline.name);
+    this.registerDomEvent(deadlineElem, "dragstart", (ev: DragEvent) => {
+      ev.dataTransfer.dropEffect = "move";
+      // using a custom type here so only deadlines can be dragged, not other UI elems
+      ev.dataTransfer.setData("application/deadline-id", deadlineElem.id);
+      this.currentDragDeadline = deadline;
     });
-    this.registerDomEvent(deadlineElem, "dragend", (ev) => {
-      console.log("drag end for " + deadline.name);
+    this.registerDomEvent(deadlineElem, "dragend", (ev: DragEvent) => {
+      // using appendChild in the drop event moves the element automatically
+      // so nothing really has to happen here visually
+      // https://html.spec.whatwg.org/multipage/dnd.html#the-drag-data-store
+      // can't access data here either to do file move
     });
 
     if (calBlock == null) {
