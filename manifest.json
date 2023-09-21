@@ -1,7 +1,7 @@
 {
 	"id": "obsidian-deadlines",
 	"name": "Deadlines",
-	"version": "0.1.2",
+	"version": "0.1.3",
 	"minAppVersion": "1.4.13",
 	"description": "An Obsidian plugin that displays notes with deadlines in a calendar view.",
 	"author": "Liz Wigglesworth",
