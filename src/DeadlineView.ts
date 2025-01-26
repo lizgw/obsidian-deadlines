@@ -1,5 +1,5 @@
 import DeadlinePlugin from "main";
-import {ItemView, WorkspaceLeaf} from "obsidian";
+import { ItemView, WorkspaceLeaf } from "obsidian";
 import Deadline from "Deadline";
 
 export const VIEW_TYPE_DEADLINES = "deadline";
@@ -39,8 +39,7 @@ export class DeadlineView extends ItemView {
     this.currentDragDeadline = null;
   }
 
-  onload() {
-    super.onload();
+  async onOpen() {
     // let today = new Date(2021, 7, 8);
     let today = new Date();
     let todayMonthStr = today.toLocaleString("default", { month: "long" });
@@ -136,8 +135,8 @@ export class DeadlineView extends ItemView {
     if (dl.status != "done") {
       // find the block to add it to
       let dateStr = this.plugin.dateToFormatString(dl.date);
-      // console.log(dateStr + "for date " + dl.date.toUTCString());
-      let block = document.getElementById(dateStr);
+      let containerElem = this.containerElem.getElementsByTagName("div").namedItem("calendar-container");
+      let block = containerElem.getElementsByTagName("div").namedItem(dateStr);
       this.createDeadlineBlock(dl, block);
     }
   }
@@ -346,6 +345,8 @@ export class DeadlineView extends ItemView {
         ));
       }
     });
+
+    console.log("[Obsidian Deadlines] Found " + data.length + " files with deadlines");
 
     return data;
   }

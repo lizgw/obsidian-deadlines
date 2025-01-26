@@ -1,8 +1,8 @@
-import { Modal, Plugin} from 'obsidian';
-import {DeadlineView, VIEW_TYPE_DEADLINES} from './DeadlineView';
+import { Modal, Plugin, WorkspaceLeaf } from 'obsidian';
+import { DeadlineView, VIEW_TYPE_DEADLINES } from './DeadlineView';
 import DeadlineCreationModal from 'DeadlineCreationModal';
 import Deadline from 'Deadline';
-import {DeadlinePluginSettings, DeadlinePluginSettingTab, DEFAULT_SETTINGS} from './settings';
+import { DeadlinePluginSettings, DeadlinePluginSettingTab, DEFAULT_SETTINGS } from './settings';
 
 export default class DeadlinePlugin extends Plugin {
 	settings: DeadlinePluginSettings;
@@ -32,7 +32,9 @@ export default class DeadlinePlugin extends Plugin {
 			callback: () => {
 				this.openDeadlineView();
 			}
-		});		
+		});
+
+		console.log("[Obsidian Deadlines] Plugin loaded");
 	}
 
 	createDeadlineModal(date?: Date) {
@@ -49,20 +51,28 @@ export default class DeadlinePlugin extends Plugin {
 	}
 
 	async openDeadlineView() {
-		this.app.workspace.detachLeavesOfType(VIEW_TYPE_DEADLINES);
+		// sample code from https://docs.obsidian.md/Plugins/User+interface/Views
+		const { workspace } = this.app;
 
-		await this.app.workspace.getLeaf('tab').setViewState({
-			type: VIEW_TYPE_DEADLINES,
-			active: true,
-		});
+		let leaf: WorkspaceLeaf | null = null;
+		const existingLeaves = workspace.getLeavesOfType(VIEW_TYPE_DEADLINES);
 
-		this.app.workspace.revealLeaf(
-			this.app.workspace.getLeavesOfType(VIEW_TYPE_DEADLINES)[0]
-		);
+		if (existingLeaves.length > 0) {
+			// A leaf with our view already exists, use that
+			leaf = existingLeaves[0];
+		} else {
+			// Our view could not be found in the workspace, create a new leaf
+			// in the right sidebar for it
+			leaf = workspace.getLeaf("tab");
+			await leaf.setViewState({ type: VIEW_TYPE_DEADLINES, active: true });
+		}
+
+		// "Reveal" the leaf in case it is in a collapsed sidebar
+		workspace.revealLeaf(leaf);
 	}
 
 	async onunload() {
-		// console.log('unloading plugin');
+		console.log('[Obsidian Deadlines] Unloading');
 		this.app.workspace.detachLeavesOfType(VIEW_TYPE_DEADLINES);
 	}
 
@@ -123,17 +133,23 @@ export default class DeadlinePlugin extends Plugin {
 
 			// update open deadline views with new deadline
 			let deadlineLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_DEADLINES);
-			deadlineLeaves.forEach(leaf => {
-				let view = <DeadlineView> leaf.view;
-				let date = this.createDateFromText(deadlineDate);
-				view.renderSingleDeadline(new Deadline(
-					deadlineTitle,
-					date,
-					deadlineGroup,
-					"todo",
-					deadlineFile
-				));
-			});
+			for (let leaf of deadlineLeaves) {
+				// https://docs.obsidian.md/Plugins/Guides/Understanding+deferred+views
+				if (leaf) {
+					await this.app.workspace.revealLeaf(leaf);
+					if (leaf.view instanceof DeadlineView) {
+						let view = <DeadlineView> leaf.view;
+						let date = this.createDateFromText(deadlineDate);
+						view.renderSingleDeadline(new Deadline(
+							deadlineTitle,
+							date,
+							deadlineGroup,
+							"todo",
+							deadlineFile
+						));
+					}
+				}
+			};
 			// we don't have to worry about adding it to the deadline list
 			// because it'll get updated next time the view opens
 		} catch (err) {
